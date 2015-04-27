@@ -25,11 +25,14 @@ public class Client{
 			name=args[1];
 		SocketPrincipale sp = new SocketPrincipale();
 		SocketSecondaire sc = new SocketSecondaire();
+		PeerToPeer ptp = new PeerToPeer();
 		sp.start();
 		sc.start();
+		ptp.start();
 		try {
 			sp.join();
 			sc.join();
+			ptp.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
