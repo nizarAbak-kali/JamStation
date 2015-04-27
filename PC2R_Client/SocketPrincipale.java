@@ -6,37 +6,36 @@ import java.io.PrintStream;
 import java.net.Socket;
 
 public class SocketPrincipale extends Thread{
+	static String response=null;
 	public void run(){
 		begin();
-		protocole(Client.buff);
-		jam(Client.buff);
-		sync(Client.buff);
+		try {
+			while((response=Client.buff.readLine()) != null){
+				protocole();
+				jam();
+				sync();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		exit();
 	}
 
-	private void sync(BufferedReader buff) {
-		try{
-			String response = buff.readLine();
-			if(response.matches("AUDIO_SYNC/.+/")){
-				String[] tab = response.split("/");
-				Client.tick = Integer.valueOf(tab[1]);
-			}
-		}catch(IOException e){
-			System.err.println("Sync went wrong!");
-			e.printStackTrace();
+	private void sync() {
+		if(response.matches("AUDIO_SYNC/.+/")){
+			String[] tab = response.split("/");
+			Client.tick = Integer.valueOf(tab[1]);
 		}
 	}
 
-	private static void jam(BufferedReader buff) {
+	private static void jam() {
 		try{
-			String response = buff.readLine();
-			
 			if(response.matches("EMPTY_SESSION")){
 				String mystyle = "style1";
 				int mytempo = 120;
 				String message = "SET_OPTIONS/"+mystyle+"/"+mytempo+"/";
 				Client.output.println(message);
-				response = buff.readLine();
+				response = Client.buff.readLine();
 				if(response.matches("ACK_OPTS")){
 					System.out.println("Server message: " + response);
 				}
@@ -52,7 +51,7 @@ public class SocketPrincipale extends Thread{
 				int nbMusiciens = Integer.valueOf(tab[3]);
 				String message = "SET_OPTIONS/"+mystyle+"/"+mytempo+"/";
 				Client.output.println(message);
-				response = buff.readLine();
+				response = Client.buff.readLine();
 				if(response.matches("ACK_OPTS")){
 					System.out.println("Server message: " + response);
 				}
@@ -75,31 +74,29 @@ public class SocketPrincipale extends Thread{
 		}
 	}
 	
-	private static void protocole(BufferedReader buff) {
+	private static void protocole() {
 		try{
-			String response = buff.readLine();
-			if(response.matches("WELCOME.+"))
+			if(response.matches("WELCOME.+")){
 				System.out.println("Server message: " + response);
+				response = Client.buff.readLine();
+				if(response.matches("AUDIO_PORT/.+/")){
+					String[] tab = response.split("/");
+					String port2 = tab[1];
+					Client.channel2 = new Socket("",Integer.valueOf(port2));
+					Client.input2 = Client.channel2.getInputStream();
+					Client.output2 = new PrintStream(Client.channel2.getOutputStream());
 
-			response = buff.readLine();
-			if(response.matches("AUDIO_PORT/.+/")){
-				String[] tab = response.split("/");
-				String port2 = tab[1];
-				Client.channel2 = new Socket("",Integer.valueOf(port2));
-				Client.input2 = Client.channel2.getInputStream();
-				Client.output2 = new PrintStream(Client.channel2.getOutputStream());
+					response = Client.buff.readLine();
+					if(!response.matches("AUDIO_OK"))
+						System.err.println("Message error!");
+					System.out.println("Server message: " + response);
+					
+					response = Client.buff.readLine();
+					if(!response.matches("CONNECTED/.+/"))
+						System.err.println("Message error!");
+					System.out.println("Server message: " + response);
+				}
 			}
-			
-			response = buff.readLine();
-			if(!response.matches("AUDIO_OK"))
-				System.err.println("Message error!");
-			System.out.println("Server message: " + response);
-			
-			response = buff.readLine();
-			if(!response.matches("CONNECTED/.+/"))
-				System.err.println("Message error!");
-			System.out.println("Server message: " + response);
-
 		}catch(IOException e){
 			System.err.println("Protocole went wrong!");
 			e.printStackTrace();
