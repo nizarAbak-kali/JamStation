@@ -8,8 +8,9 @@ import java.net.Socket;
 /*Chaque commande est composée d’une suite de chaînes terminées par des caractères ’/’. La dernière chaîne est
 suivie d’un retour chariot Unix \n*/
 public class Client{
-	
-	protected static final int port=2013;
+	protected static int tick = 0;
+	protected static int port=2015;
+	protected static String name = "pc2r";
 	protected static Socket socket,channel2;
 	protected static InputStream input,input2;
 	protected static PrintStream output,output2;
@@ -18,6 +19,10 @@ public class Client{
 	
 	public static void main(String[] args)
 	{
+		if(args[0]!=null)
+			port=Integer.valueOf(args[0]);
+		if(args[1]!=null)
+			name=args[1];
 		SocketPrincipale sp = new SocketPrincipale();
 		SocketSecondaire sc = new SocketSecondaire();
 		sp.start();
