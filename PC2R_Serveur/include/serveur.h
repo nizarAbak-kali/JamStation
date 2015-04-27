@@ -40,13 +40,16 @@ struct args{
 typedef struct args* cmd;
 
 /* Fonction d'interpretation des message des clients*/
+char** split_commande(char* cmd);
 void init_commande(cmd msg);
-void interprete_commande(char* cmd);
+void interprete_commande_user(char *cmd);
+
+
 
 /* Fonction d'interneterie*/
-static void init(void);
-static void end(void);
-static void app(void);
+static void app_ui(void);
+static void app_sound(void);
+
 static int init_connection();
 static void end_connection(int sock);
 static int read_client(SOCKET sock, char *buffer);
