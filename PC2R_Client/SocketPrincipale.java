@@ -10,7 +10,21 @@ public class SocketPrincipale extends Thread{
 		begin();
 		protocole(Client.buff);
 		jam(Client.buff);
+		sync(Client.buff);
 		exit();
+	}
+
+	private void sync(BufferedReader buff) {
+		try{
+			String response = buff.readLine();
+			if(response.matches("AUDIO_SYNC/.+/")){
+				String[] tab = response.split("/");
+				Client.tick = Integer.valueOf(tab[1]);
+			}
+		}catch(IOException e){
+			System.err.println("Sync went wrong!");
+			e.printStackTrace();
+		}
 	}
 
 	private static void jam(BufferedReader buff) {
@@ -19,7 +33,7 @@ public class SocketPrincipale extends Thread{
 			
 			if(response.matches("EMPTY_SESSION")){
 				String mystyle = "style1";
-				double mytempo = 2.2;//Le tempo est constitué de deux numéros, donc on peut le representer par un double
+				int mytempo = 120;
 				String message = "SET_OPTIONS/"+mystyle+"/"+mytempo+"/";
 				Client.output.println(message);
 				response = buff.readLine();
@@ -34,7 +48,7 @@ public class SocketPrincipale extends Thread{
 			else if(response.matches("CURRENT_SESSION/.+/.+/.+/")){
 				String[] tab = response.split("/");
 				String mystyle = tab[1];
-				double mytempo = Double.valueOf(tab[2]);//Le tempo est constitué de deux numéros, donc on peut le representer par un double
+				int mytempo = Integer.valueOf(tab[2]);
 				int nbMusiciens = Integer.valueOf(tab[3]);
 				String message = "SET_OPTIONS/"+mystyle+"/"+mytempo+"/";
 				Client.output.println(message);
@@ -68,7 +82,6 @@ public class SocketPrincipale extends Thread{
 				System.out.println("Server message: " + response);
 
 			response = buff.readLine();
-			System.out.println("Server message2: " + response);
 			if(response.matches("AUDIO_PORT/.+/")){
 				String[] tab = response.split("/");
 				String port2 = tab[1];
@@ -102,12 +115,12 @@ public class SocketPrincipale extends Thread{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		String message = "CONNECT/Amateur_1/";
+		String message = "CONNECT/"+Client.name+"/";
 		Client.output.println(message);
 	}
 
 	private static void exit() {
-		String message = "EXIT/Amateur_1/";
+		String message = "EXIT/"+Client.name+"/";
 		Client.output.println(message);
 		try {
 			Client.channel2.close();
