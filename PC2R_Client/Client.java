@@ -1,60 +1,41 @@
 package music;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.regex.Pattern;
 /*Chaque commande est composée d’une suite de chaînes terminées par des caractères ’/’. La dernière chaîne est
 suivie d’un retour chariot Unix \n*/
 public class Client{
+	protected static int tick = 0;
+	protected static int port=2015;
+	protected static String name = "pc2r";
+	protected static Socket socket,channel2;
+	protected static InputStream input,input2;
+	protected static PrintStream output,output2;
+	protected static BufferedReader buff = new BufferedReader(new InputStreamReader(input));
+	protected static BufferedReader buff2 = new BufferedReader(new InputStreamReader(input2));
 	
-	protected static final int port=2013;
-	private static Socket socket;
-
 	public static void main(String[] args)
 	{
-		InputStream input   = null;
-		PrintStream output =null;
-		String message;
-	
-		try
-		{
-			socket = new Socket("", port);
-
-			input = socket.getInputStream();
-			//PrintStream ps = new PrintStream(socket.getOutputStream());
-			output = new PrintStream(socket.getOutputStream());
-			message = "CONNECT/user/Amateur_1";
-			output.println(message);
-			
-			String response = new BufferedReader(new InputStreamReader(input)).readLine();
-			if(response.matches("WELCOME.+"))
-				System.out.println("Server message: " + response);
-		}
-		catch (UnknownHostException e)
-		{
+		if(args[0]!=null)
+			port=Integer.valueOf(args[0]);
+		if(args[1]!=null)
+			name=args[1];
+		SocketPrincipale sp = new SocketPrincipale();
+		SocketSecondaire sc = new SocketSecondaire();
+		sp.start();
+		sc.start();
+		try {
+			sp.join();
+			sc.join();
+		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			try
-			{
-				input.close();
-				socket.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
 		}
 	}
+
+	
+
+	
 }
