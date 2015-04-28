@@ -9,6 +9,7 @@ public class SocketPrincipale extends Thread{
 	static String response=null;
 	public void run(){
 		begin();
+		ConnexionSecurisee cs = new ConnexionSecurisee();
 		try {
 			while((response=Client.buff.readLine()) != null){
 				protocole();
@@ -61,10 +62,11 @@ public class SocketPrincipale extends Thread{
 			}
 			
 			else if(response.matches("FULL_SESSION")){
-				exit();
-				/**
-				 * Ou se mettre en spectateur (pas encore ecrit)
-				 */
+				double alea = Math.random();
+				if(alea<0.5)
+					exit();
+				else
+					spectateur();
 			}
 			
 		
@@ -74,6 +76,20 @@ public class SocketPrincipale extends Thread{
 		}
 	}
 	
+	private static void spectateur() {
+		String message = "SPECTATOR";
+		Client.output.println(message);
+		while(!Client.socket.isClosed()){
+			try {
+				response=Client.buff.readLine();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			if(response!=null)
+				System.out.println(response);
+		}
+	}
+
 	private static void protocole() {
 		try{
 			if(response.matches("WELCOME.+")){
