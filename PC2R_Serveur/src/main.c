@@ -2,7 +2,9 @@
 #include "serveur.c"
 #include "traceinstantsf.c"
 
+
 int main() {
+    SDL_Init(SDL_INIT_AUDIO);
     printf("creation du scheduler\n");
     ft_scheduler_t ordo = ft_scheduler_create();
 
@@ -14,5 +16,6 @@ int main() {
 
     ft_scheduler_start(ordo);
     printf("fin");
-    return 0;
+    SDL_Quit();
+    return EXIT_SUCCESS;
 }
