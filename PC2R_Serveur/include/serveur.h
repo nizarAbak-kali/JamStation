@@ -28,7 +28,7 @@ typedef struct in_addr IN_ADDR;
 #define MAX_CLIENTS 	100
 
 #define BUF_SIZE	1024
-
+#include "SDL/SDL.h"
 #include "client.h"
 #include <stdio.h>
 #include <stdlib.h>
